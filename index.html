@@ -58,6 +58,8 @@ footer{margin-top:36px;text-align:center;color:var(--muted);font-size:13px}
 .round:disabled{opacity:.3;cursor:default}
 .stage{flex:1;min-height:0;display:flex}
 .stage iframe{border:0;width:100%;height:100%;background:#000}
+.stage video{width:100%;height:100%;background:#000;object-fit:contain;display:block}
+.stage [hidden]{display:none}
 .nav{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px}
 .ext{color:#bbb;font-size:12px;text-decoration:underline}
 .nav .round{width:auto;height:44px;border-radius:999px;padding:0 14px;font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:2px}
@@ -80,7 +82,7 @@ footer{margin-top:36px;text-align:center;color:var(--muted);font-size:13px}
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
   </header>
-  <div class="stage"><iframe id="frame" title="안전 영상" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
+  <div class="stage"><iframe id="frame" title="안전 영상" allow="autoplay; fullscreen" allowfullscreen></iframe><video id="player" controls playsinline preload="metadata" hidden></video></div>
   <div class="nav">
     <button class="round" id="prev" type="button" aria-label="이전 영상"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>이전</button>
     <a id="ext" class="ext" href="#" target="_blank" rel="noopener">재생이 안 되면 여기</a>
@@ -185,7 +187,15 @@ function driveView(id){ return 'https://drive.google.com/file/d/' + encodeURICom
 function open(i){
   cur = i;
   var v = VIDEOS[i];
-  frame.src = 'https://drive.google.com/file/d/' + encodeURIComponent(v.id) + '/preview';
+  var pl = document.getElementById('player');
+  if (v.file) {
+    frame.hidden = true; frame.src = 'about:blank';
+    pl.hidden = false; pl.src = v.file;
+    var pp = pl.play(); if (pp && pp.catch) pp.catch(function(){});
+  } else {
+    pl.pause(); pl.removeAttribute('src'); pl.hidden = true;
+    frame.hidden = false; frame.src = 'https://drive.google.com/file/d/' + encodeURIComponent(v.id) + '/preview';
+  }
   document.getElementById('ext').href = driveView(v.id);
   document.getElementById('s-title').textContent = v.title;
   document.getElementById('s-month').textContent = v.month || '';
@@ -198,6 +208,7 @@ function open(i){
 function close(){
   sheet.classList.remove('open');
   frame.src = 'about:blank';
+  var pl = document.getElementById('player'); pl.pause(); pl.removeAttribute('src'); pl.load();
   document.body.style.overflow = '';
 }
 document.getElementById('close').onclick = close;
@@ -206,8 +217,9 @@ document.getElementById('next').onclick = function(){ if (cur < VIDEOS.length - 
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && sheet.classList.contains('open')) close(); });
 
 var loading = el('div', 'empty'); loading.appendChild(el('p', null, '영상 목록을 불러오는 중…')); app.appendChild(loading);
-fetch(API + '&t=' + Date.now(), { credentials: 'omit' })
+fetch('videos.json?t=' + Date.now())
   .then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+  .catch(function(){ return fetch(API + '&t=' + Date.now(), { credentials: 'omit' }).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }); })
   .then(function(d){ VIDEOS = (d && d.videos) || []; render(); })
   .catch(function(){
     app.textContent = '';
