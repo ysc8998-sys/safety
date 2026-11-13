@@ -28,6 +28,8 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .months::-webkit-scrollbar{display:none}
 .months button{flex-shrink:0;min-height:40px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font-size:14px;font-weight:700}
 .months button[aria-pressed="true"]{background:var(--brand)}
+.months button.zero{opacity:.5}
+#years{padding-bottom:0}
 main{max-width:720px;margin:0 auto;padding:8px 16px calc(32px + env(safe-area-inset-bottom,0px))}
 .display{font-family:"Black Han Sans","Noto Sans KR",sans-serif;font-weight:400;margin:0;line-height:1.2}
 .group{scroll-margin-top:130px}
@@ -62,7 +64,8 @@ footer{margin-top:36px;text-align:center;color:var(--muted);font-size:13px}
 <div class="top">
   <div class="tape" aria-hidden="true"></div>
   <div class="bar"><strong>안전 영상</strong><span>SM삼환기업 안전보건팀</span></div>
-  <nav class="months" id="months" aria-label="월별 바로가기"></nav>
+  <nav class="months" id="years" aria-label="연도 선택" hidden></nav>
+  <nav class="months" id="months" aria-label="월별 보기"></nav>
 </div>
 <main id="app"></main>
 
@@ -86,6 +89,7 @@ var API = 'https://script.google.com/macros/s/AKfycbyWVywdyFgheIR5Qe-g9UosyjVRb4
 var VIDEOS = [];
 var app = document.getElementById('app');
 var monthsNav = document.getElementById('months');
+var yearsNav = document.getElementById('years');
 var sheet = document.getElementById('sheet');
 var frame = document.getElementById('frame');
 var cur = -1;
@@ -103,55 +107,72 @@ function poster(v){
 }
 
 var FILTER = 'all';
-function groupsOf(){
-  var groups = [];
-  VIDEOS.forEach(function(v, i){
-    var key = v.month || '기타 영상';
-    var g = groups.length && groups[groups.length - 1].key === key ? groups[groups.length - 1] : null;
-    if (!g){ g = { key: key, items: [] }; groups.push(g); }
-    g.items.push(i);
-  });
-  return groups;
-}
-function chip(label, value, count){
-  var c = el('button', null, label + ' ' + count); c.type = 'button';
-  c.setAttribute('aria-pressed', FILTER === value ? 'true' : 'false');
-  c.onclick = function(){ FILTER = value; render(); window.scrollTo(0, 0); };
+var YEAR = null;
+function ym(v){ var m = (v.month || '').match(/(\d{4})\D+(\d{1,2})/); return m ? { y: +m[1], m: +m[2] } : null; }
+function chipBtn(label, pressed, onClick, dim){
+  var c = el('button', dim ? 'zero' : null, label); c.type = 'button';
+  c.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+  c.onclick = onClick;
   return c;
+}
+function section(title, idxs, isNewest){
+  var sec = el('section', 'group');
+  var h = el('h2', 'display', title);
+  h.appendChild(el('small', null, idxs.length + '편'));
+  sec.appendChild(h);
+  var ul = el('ul', 'grid');
+  idxs.forEach(function(i){
+    var v = VIDEOS[i];
+    var li = el('li');
+    var b = el('button', 'tile'); b.type = 'button';
+    b.setAttribute('aria-label', v.title + ' 재생');
+    b.appendChild(poster(v));
+    var t = el('b', null, v.title);
+    if (isNewest && i === 0) t.appendChild(el('span', 'new', '최신'));
+    b.appendChild(t);
+    b.onclick = function(){ open(i); };
+    li.appendChild(b); ul.appendChild(li);
+  });
+  sec.appendChild(ul);
+  return sec;
 }
 function render(){
   app.textContent = '';
   monthsNav.textContent = '';
-  if (!VIDEOS.length){
-    var e = el('div', 'empty'); e.appendChild(el('p', null, '아직 올라온 영상이 없습니다.')); app.appendChild(e);
-    monthsNav.hidden = true;
-    return;
-  }
-  var groups = groupsOf();
-  monthsNav.appendChild(chip('전체', 'all', VIDEOS.length));
-  groups.forEach(function(g){ monthsNav.appendChild(chip(g.key, g.key, g.items.length)); });
-  groups.forEach(function(g, gi){
-    if (FILTER !== 'all' && FILTER !== g.key) return;
-    var sec = el('section', 'group');
-    var h = el('h2', 'display', g.key);
-    h.appendChild(el('small', null, g.items.length + '편'));
-    sec.appendChild(h);
-    var ul = el('ul', 'grid');
-    g.items.forEach(function(i){
-      var v = VIDEOS[i];
-      var li = el('li');
-      var b = el('button', 'tile'); b.type = 'button';
-      b.setAttribute('aria-label', v.title + ' 재생');
-      b.appendChild(poster(v));
-      var t = el('b', null, v.title);
-      if (gi === 0) t.appendChild(el('span', 'new', '최신'));
-      b.appendChild(t);
-      b.onclick = function(){ open(i); };
-      li.appendChild(b); ul.appendChild(li);
-    });
-    sec.appendChild(ul);
-    app.appendChild(sec);
+  yearsNav.textContent = '';
+  var years = [];
+  VIDEOS.forEach(function(v){ var p = ym(v); if (p && years.indexOf(p.y) < 0) years.push(p.y); });
+  years.sort(function(a, b){ return b - a; });
+  if (YEAR === null) YEAR = years.length ? years[0] : new Date().getFullYear();
+  yearsNav.hidden = years.length < 2;
+  years.forEach(function(y){
+    yearsNav.appendChild(chipBtn(y + '년', y === YEAR, function(){ YEAR = y; FILTER = 'all'; render(); window.scrollTo(0, 0); }));
   });
+  var byMonth = {}; var etc = [];
+  VIDEOS.forEach(function(v, i){
+    var p = ym(v);
+    if (!p) { etc.push(i); return; }
+    if (p.y !== YEAR) return;
+    (byMonth[p.m] = byMonth[p.m] || []).push(i);
+  });
+  var total = 0; for (var k in byMonth) total += byMonth[k].length;
+  monthsNav.appendChild(chipBtn('전체 ' + total, FILTER === 'all', function(){ FILTER = 'all'; render(); window.scrollTo(0, 0); }));
+  for (var m = 1; m <= 12; m++) (function(m){
+    var n = (byMonth[m] || []).length;
+    monthsNav.appendChild(chipBtn(m + '월' + (n ? ' ' + n : ''), FILTER === m, function(){ FILTER = m; render(); window.scrollTo(0, 0); }, !n));
+  })(m);
+  var sel = monthsNav.querySelector('[aria-pressed="true"]');
+  if (sel) monthsNav.scrollLeft = Math.max(0, sel.offsetLeft - 16);
+
+  if (FILTER === 'all'){
+    var any = false;
+    for (var mm = 12; mm >= 1; mm--) if (byMonth[mm]) { app.appendChild(section(YEAR + '년 ' + mm + '월', byMonth[mm], true)); any = true; }
+    if (etc.length) { app.appendChild(section('기타 영상', etc, false)); any = true; }
+    if (!any){ var e = el('div', 'empty'); e.appendChild(el('p', null, '아직 올라온 영상이 없습니다.')); app.appendChild(e); }
+  } else {
+    if (byMonth[FILTER]) app.appendChild(section(YEAR + '년 ' + FILTER + '월', byMonth[FILTER], true));
+    else { var e2 = el('div', 'empty'); e2.appendChild(el('p', null, FILTER + '월 영상은 아직 없습니다.')); app.appendChild(e2); }
+  }
   app.appendChild(el('footer', null, '위의 월을 누르면 그 달 영상만 볼 수 있어요'));
 }
 
