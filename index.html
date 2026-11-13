@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<title>SM삼환기업 안전 숏폼</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+:root{
+  --ground:#E8E7E2; --surface:#FFFFFF; --ink:#1A1A18; --muted:#55544F;
+  --brand:#FF3E00; --brand-ink:#B32C00; --tape:#FFC71A; --band:#1A1A18;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ground:#1B1B19; --surface:#262624; --ink:#F2F1EE; --muted:#B5B3AC;
+         --brand:#FF5A24; --brand-ink:#FF8A5E; --band:#0E0E0D; color-scheme: dark; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--ground);color:var(--ink);font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.top{position:sticky;top:0;z-index:5;background:var(--band);color:#fff;padding-top:env(safe-area-inset-top,0px)}
+.tape{height:10px;background:repeating-linear-gradient(-45deg,var(--tape) 0 16px,#1A1A18 16px 32px)}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px}
+.bar strong{font-family:"Black Han Sans",sans-serif;font-weight:400;font-size:22px;letter-spacing:-.01em}
+.bar span{font-size:13px;opacity:.85}
+main{max-width:640px;margin:0 auto;padding:18px 16px calc(32px + env(safe-area-inset-bottom,0px))}
+.display{font-family:"Black Han Sans","Noto Sans KR",sans-serif;font-weight:400;margin:0;line-height:1.2}
+.lead{margin:0 0 8px;font-size:14px;font-weight:700;color:var(--brand-ink)}
+.hero{display:flex;gap:14px;align-items:stretch;width:100%;text-align:left;background:var(--surface);border-radius:16px;padding:12px;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+.hero .poster{width:42%;max-width:190px;aspect-ratio:9/16;border-radius:12px;overflow:hidden;background:#000;position:relative;flex-shrink:0}
+.hero .meta{display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0}
+.hero h2{font-size:26px}
+.hero small{color:var(--muted);font-size:14px}
+.play{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;margin-top:6px;background:var(--brand);color:#fff;border-radius:999px;padding:12px 18px;font-weight:700;font-size:16px}
+.poster img{width:100%;height:100%;object-fit:cover;display:block}
+.poster .ic{position:absolute;inset:auto auto 10px 10px;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.6);display:grid;place-items:center}
+.section{margin:30px 0 12px;font-size:21px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;list-style:none;margin:0;padding:0}
+@media (min-width:560px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.tile{display:flex;flex-direction:column;gap:8px;width:100%;text-align:left}
+.tile .poster{width:100%;aspect-ratio:9/16;border-radius:12px;overflow:hidden;background:#000;position:relative}
+.tile b{font-size:16px;line-height:1.35;display:block}
+.tile small{color:var(--muted);font-size:13px}
+.empty{background:var(--surface);border-radius:14px;padding:32px 18px;text-align:center;color:var(--muted)}
+footer{margin-top:36px;text-align:center;color:var(--muted);font-size:13px}
+.sheet{position:fixed;inset:0;z-index:20;background:#000;display:none;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.sheet.open{display:flex}
+.sheet header{display:flex;align-items:center;gap:10px;padding:10px 12px;color:#fff}
+.sheet header .t{flex:1;min-width:0}
+.sheet header b{display:block;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheet header small{opacity:.75;font-size:13px}
+.round{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;color:#fff;flex-shrink:0}
+.round:disabled{opacity:.3;cursor:default}
+.stage{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;padding:0 8px}
+.stage iframe{border:0;width:min(100%, calc((100vh - 170px) * 9 / 16));aspect-ratio:9/16;max-height:100%;background:#111;border-radius:10px}
+.nav{display:flex;justify-content:center;gap:20px;padding:12px}
+.nav .round{width:auto;border-radius:999px;padding:0 20px;font-weight:700;font-size:15px;gap:6px;display:inline-flex;align-items:center}
+.hint{color:#bbb;font-size:12px;text-align:center;margin:0 0 6px}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="tape" aria-hidden="true"></div>
+  <div class="bar"><strong>안전 숏폼</strong><span>SM삼환기업 안전보건팀</span></div>
+</div>
+<main id="app"></main>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="s-title">
+  <header>
+    <div class="t"><b id="s-title"></b><small id="s-month"></small></div>
+    <button class="round" id="close" type="button" aria-label="닫기">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </header>
+  <div class="stage"><iframe id="frame" title="안전 영상" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
+  <p class="hint">재생 버튼을 누르세요. 소리가 작으면 휴대폰 음량을 올려 주세요.</p>
+  <div class="nav">
+    <button class="round" id="prev" type="button">이전 영상</button>
+    <button class="round" id="next" type="button">다음 영상</button>
+  </div>
+</div>
+
+<script>
+var API = 'https://script.google.com/macros/s/AKfycbyWVywdyFgheIR5Qe-g9UosyjVRb48FSTohR0nu3wb5vBbomdfPxAAMWLAjp6DISioN/exec?format=json';
+var VIDEOS = [];
+var app = document.getElementById('app');
+var sheet = document.getElementById('sheet');
+var frame = document.getElementById('frame');
+var cur = -1;
+
+function thumb(id){ return 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(id) + '&sz=w480'; }
+function el(tag, cls, text){ var n = document.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n; }
+function playIcon(){
+  var s = el('span', 'ic');
+  s.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+  return s;
+}
+function poster(v){
+  var p = el('span', 'poster');
+  var img = new Image(); img.alt = ''; img.loading = 'lazy'; img.src = thumb(v.id);
+  img.onerror = function(){ img.remove(); };
+  p.appendChild(img); p.appendChild(playIcon());
+  return p;
+}
+
+function render(){
+  app.textContent = '';
+  if (!VIDEOS.length){
+    var e = el('div', 'empty'); e.appendChild(el('p', null, '아직 올라온 영상이 없습니다.')); app.appendChild(e);
+    return;
+  }
+  var v0 = VIDEOS[0];
+  app.appendChild(el('p', 'lead', '이번 달 안전 영상'));
+  var hero = el('button', 'hero'); hero.type = 'button';
+  hero.setAttribute('aria-label', v0.title + ' 재생');
+  hero.appendChild(poster(v0));
+  var meta = el('span', 'meta');
+  meta.appendChild(el('h2', 'display', v0.title));
+  if (v0.month) meta.appendChild(el('small', null, v0.month));
+  meta.appendChild(el('span', 'play', '▶  바로 보기'));
+  hero.appendChild(meta);
+  hero.onclick = function(){ open(0); };
+  app.appendChild(hero);
+
+  if (VIDEOS.length > 1){
+    app.appendChild(el('h2', 'display section', '지난 영상'));
+    var ul = el('ul', 'grid');
+    VIDEOS.slice(1).forEach(function(v, k){
+      var li = el('li');
+      var b = el('button', 'tile'); b.type = 'button';
+      b.setAttribute('aria-label', v.title + ' 재생');
+      b.appendChild(poster(v));
+      var t = el('span'); t.appendChild(el('b', null, v.title)); if (v.month) t.appendChild(el('small', null, v.month));
+      b.appendChild(t);
+      b.onclick = function(){ open(k + 1); };
+      li.appendChild(b); ul.appendChild(li);
+    });
+    app.appendChild(ul);
+  }
+  app.appendChild(el('footer', null, '매달 새 영상이 올라옵니다'));
+}
+
+function open(i){
+  cur = i;
+  var v = VIDEOS[i];
+  frame.src = 'https://drive.google.com/file/d/' + encodeURIComponent(v.id) + '/preview';
+  document.getElementById('s-title').textContent = v.title;
+  document.getElementById('s-month').textContent = v.month || '';
+  document.getElementById('prev').disabled = i <= 0;
+  document.getElementById('next').disabled = i >= VIDEOS.length - 1;
+  sheet.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('close').focus();
+}
+function close(){
+  sheet.classList.remove('open');
+  frame.src = 'about:blank';
+  document.body.style.overflow = '';
+}
+document.getElementById('close').onclick = close;
+document.getElementById('prev').onclick = function(){ if (cur > 0) open(cur - 1); };
+document.getElementById('next').onclick = function(){ if (cur < VIDEOS.length - 1) open(cur + 1); };
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && sheet.classList.contains('open')) close(); });
+
+app.innerHTML = '';
+var loading = el('div', 'empty'); loading.appendChild(el('p', null, '영상 목록을 불러오는 중…')); app.appendChild(loading);
+fetch(API + '&t=' + Date.now(), { credentials: 'omit' })
+  .then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(function(d){ VIDEOS = (d && d.videos) || []; render(); })
+  .catch(function(){
+    app.textContent = '';
+    var e = el('div', 'empty');
+    e.appendChild(el('p', null, '영상 목록을 불러오지 못했습니다. 잠시 뒤 다시 열어 주세요.'));
+    app.appendChild(e);
+  });
+</script>
+</body>
+</html>
