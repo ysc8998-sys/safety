@@ -102,6 +102,23 @@ function poster(v){
   return p;
 }
 
+var FILTER = 'all';
+function groupsOf(){
+  var groups = [];
+  VIDEOS.forEach(function(v, i){
+    var key = v.month || '기타 영상';
+    var g = groups.length && groups[groups.length - 1].key === key ? groups[groups.length - 1] : null;
+    if (!g){ g = { key: key, items: [] }; groups.push(g); }
+    g.items.push(i);
+  });
+  return groups;
+}
+function chip(label, value, count){
+  var c = el('button', null, label + ' ' + count); c.type = 'button';
+  c.setAttribute('aria-pressed', FILTER === value ? 'true' : 'false');
+  c.onclick = function(){ FILTER = value; render(); window.scrollTo(0, 0); };
+  return c;
+}
 function render(){
   app.textContent = '';
   monthsNav.textContent = '';
@@ -110,25 +127,12 @@ function render(){
     monthsNav.hidden = true;
     return;
   }
-  var groups = [];
-  VIDEOS.forEach(function(v, i){
-    var key = v.month || '기타 영상';
-    var g = groups.length && groups[groups.length - 1].key === key ? groups[groups.length - 1] : null;
-    if (!g){ g = { key: key, items: [] }; groups.push(g); }
-    g.items.push(i);
-  });
+  var groups = groupsOf();
+  monthsNav.appendChild(chip('전체', 'all', VIDEOS.length));
+  groups.forEach(function(g){ monthsNav.appendChild(chip(g.key, g.key, g.items.length)); });
   groups.forEach(function(g, gi){
-    var id = 'm' + gi;
-    var chip = el('button', null, g.key); chip.type = 'button';
-    chip.setAttribute('aria-pressed', gi === 0 ? 'true' : 'false');
-    chip.onclick = function(){
-      Array.prototype.forEach.call(monthsNav.children, function(c){ c.setAttribute('aria-pressed', 'false'); });
-      chip.setAttribute('aria-pressed', 'true');
-      document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-    monthsNav.appendChild(chip);
-
-    var sec = el('section', 'group'); sec.id = id;
+    if (FILTER !== 'all' && FILTER !== g.key) return;
+    var sec = el('section', 'group');
     var h = el('h2', 'display', g.key);
     h.appendChild(el('small', null, g.items.length + '편'));
     sec.appendChild(h);
@@ -148,7 +152,7 @@ function render(){
     sec.appendChild(ul);
     app.appendChild(sec);
   });
-  app.appendChild(el('footer', null, '새 영상이 올라오면 맨 위에 보입니다'));
+  app.appendChild(el('footer', null, '위의 월을 누르면 그 달 영상만 볼 수 있어요'));
 }
 
 function open(i){
