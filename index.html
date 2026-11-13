@@ -24,6 +24,9 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .bar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px}
 .bar strong{font-family:"Black Han Sans",sans-serif;font-weight:400;font-size:22px;letter-spacing:-.01em}
 .bar span{font-size:13px;opacity:.85}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand img{height:22px;width:auto;display:block}
+.brand strong{padding-left:12px;border-left:1px solid rgba(255,255,255,.35);line-height:1}
 .months{display:flex;gap:8px;overflow-x:auto;padding:10px 16px 12px;background:var(--band);scrollbar-width:none}
 .months::-webkit-scrollbar{display:none}
 .months button{flex-shrink:0;min-height:40px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font-size:14px;font-weight:700}
@@ -63,7 +66,7 @@ footer{margin-top:36px;text-align:center;color:var(--muted);font-size:13px}
 <body>
 <div class="top">
   <div class="tape" aria-hidden="true"></div>
-  <div class="bar"><strong>안전 영상</strong><span>SM삼환기업 안전보건팀</span></div>
+  <div class="bar"><div class="brand"><img src="https://drive.google.com/thumbnail?id=1MyIILGslb4s-BmjXeZK1wwSvdBcXd6ko&sz=w640" alt="SM삼환기업" width="160" height="23" onerror="this.style.display='none'"><strong>안전 영상</strong></div><span>안전보건팀</span></div>
   <nav class="months" id="years" aria-label="연도 선택" hidden></nav>
   <nav class="months" id="months" aria-label="월별 보기"></nav>
 </div>
