@@ -50,16 +50,17 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(32px + env(safe-area-in
 footer{margin-top:36px;text-align:center;color:var(--muted);font-size:13px}
 .sheet{position:fixed;inset:0;z-index:20;background:#000;display:none;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 .sheet.open{display:flex}
-.sheet header{display:flex;align-items:center;gap:10px;padding:10px 12px;color:#fff}
+.sheet header{display:flex;align-items:center;gap:10px;padding:6px 12px;color:#fff}
 .sheet header .t{flex:1;min-width:0}
 .sheet header b{display:block;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sheet header small{opacity:.75;font-size:13px}
 .round{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;color:#fff;flex-shrink:0}
 .round:disabled{opacity:.3;cursor:default}
-.stage{flex:1;min-height:0;padding:0 8px;display:flex}
-.stage iframe{border:0;width:100%;height:100%;background:#111;border-radius:10px}
-.nav{display:flex;justify-content:center;gap:20px;padding:12px}
-.nav .round{width:auto;border-radius:999px;padding:0 20px;font-weight:700;font-size:15px;display:inline-flex;align-items:center}
+.stage{flex:1;min-height:0;display:flex}
+.stage iframe{border:0;width:100%;height:100%;background:#000}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px}
+.ext{color:#bbb;font-size:12px;text-decoration:underline}
+.nav .round{width:auto;height:44px;border-radius:999px;padding:0 14px;font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:2px}
 .hint{color:#bbb;font-size:12px;text-align:center;margin:8px 0 0}
 </style>
 </head>
@@ -80,10 +81,10 @@ footer{margin-top:36px;text-align:center;color:var(--muted);font-size:13px}
     </button>
   </header>
   <div class="stage"><iframe id="frame" title="안전 영상" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
-  <p class="hint">재생 버튼을 누르세요. 안 나오면 <a id="ext" href="#" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline">구글 드라이브에서 열기</a></p>
   <div class="nav">
-    <button class="round" id="prev" type="button">이전 영상</button>
-    <button class="round" id="next" type="button">다음 영상</button>
+    <button class="round" id="prev" type="button" aria-label="이전 영상"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>이전</button>
+    <a id="ext" class="ext" href="#" target="_blank" rel="noopener">재생이 안 되면 여기</a>
+    <button class="round" id="next" type="button" aria-label="다음 영상">다음<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
   </div>
 </div>
 
