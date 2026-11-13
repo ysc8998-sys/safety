@@ -158,7 +158,6 @@ function render(){
 var IS_IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 function driveView(id){ return 'https://drive.google.com/file/d/' + encodeURIComponent(id) + '/view'; }
 function open(i){
-  if (IS_IOS) { window.location.href = driveView(VIDEOS[i].id); return; }
   cur = i;
   var v = VIDEOS[i];
   frame.src = 'https://drive.google.com/file/d/' + encodeURIComponent(v.id) + '/preview';
